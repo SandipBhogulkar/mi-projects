@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="archiveMainSeq" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <log level="custom">
+        <property name="ARCHIVE PROCESS :" value="Archive File Sequence Initiated"/>
+    </log>
+    <property expression="$url:uuid" name="UUID" scope="default" type="STRING"/>
+    <!-- property value="8acf1873-5a81-49d8-9840-102dbefba782" name="UUID" scope="default" type="STRING"/ -->
+    <sequence key="getMetadataConfigSeq"/>
+    <sequence key="validateUUIDSeq"/>
+    <sequence key="getMetadataSeq"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/credentials/archivalNumberOfDays" name="daysToSubtract" scope="default" type="STRING"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/credentials/archivalPath" name="archivalPath" scope="default" type="STRING"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/credentials/path" name="outboundPath" scope="default" type="STRING"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/hostname" name="hostName" scope="default" type="STRING"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/username" name="userName" scope="default" type="STRING"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/password" name="password" scope="default" type="STRING"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/port" name="port" scope="default" type="STRING"/>
+    <log>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/credentials/archivalNumberOfDays" name="daysToSubtract"/>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/credentials/archivalPath" name="archivalPath"/>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/credentials/path" name="outboundPath"/>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/hostname" name="hostName"/>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/username" name="userName"/>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/password" name="password"/>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/port" name="port"/>
+    </log>
+    <sequence key="previousDateCalculateSeq"/>
+    <file.listFiles configKey="NewFileInit">
+        <directoryPath>{$ctx:outboundPath}</directoryPath>
+        <matchingPattern>.*\.csv</matchingPattern>
+        <recursive>false</recursive>
+        <responseFormat>Hierarchical</responseFormat>
+        <sortingAttribute>Name</sortingAttribute>
+        <sortingOrder>Ascending</sortingOrder>
+    </file.listFiles>
+    <foreach expression="//file[contains(text(), $ctx:previousDate)]" id="fileMove">
+        <sequence>
+            <property expression="//file" name="Filename" scope="default" type="STRING"/>
+            <log>
+                <property expression="//file" name="Archiving file name :"/>
+                <property expression="concat(get-property('outboundPath'),'/',get-property('Filename'))" name="directoryFilePath"/>
+            </log>
+            <property expression="concat(get-property('outboundPath'),'/',get-property('Filename'))" name="directoryFilePath" scope="default" type="STRING"/>
+            <file.copy configKey="NewFileInit">
+                <sourcePath>{$ctx:directoryFilePath}</sourcePath>
+                <targetPath>{$ctx:archivalPath}</targetPath>
+                <includeParent>false</includeParent>
+                <overwrite>false</overwrite>
+            </file.copy>
+            <filter regex="true" source="json-eval($.copyFilesResult.success)">
+                <then>
+                    <log level="custom">
+                        <property name="File Copy Status" value="File copied successfully to archival path."/>
+                    </log>
+                    <file.delete configKey="NewFileInit">
+                        <path>{$ctx:directoryFilePath}</path>
+                    </file.delete>
+                </then>
+                <else>
+                    <log level="custom">
+                        <property name="File Copy Status" value="File copy failed. "/>
+                    </log>
+                </else>
+            </filter>
+        </sequence>
+    </foreach>
+</sequence>

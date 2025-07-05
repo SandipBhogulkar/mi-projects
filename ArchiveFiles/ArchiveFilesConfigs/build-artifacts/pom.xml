@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.tascua.org</groupId>
+    <artifactId>ArchiveFilesConfigs</artifactId>
+    <version>1.0.0</version>
+  </parent>
+  <groupId>com.tascua.org</groupId>
+  <artifactId>ArchiveFilesConfigs_module</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+  <name>ArchiveFilesConfigs_module</name>
+  <description>ArchiveFilesConfigs_module</description>
+  <modules>
+    <module>api/archiveAPI</module>
+    <module>metadata/archiveAPI_swagger</module>
+    <module>metadata/archiveAPI_metadata</module>
+    <module>local-entries/filearchive</module>
+    <module>sequences/archiveMainSeq</module>
+    <module>sequences/previousDateCalculateSeq</module>
+    <module>api/deleteApi</module>
+    <module>metadata/deleteApi_swagger</module>
+    <module>metadata/deleteApi_metadata</module>
+    <module>sequences/deleteArchiveFilesMainSeq</module>
+    <module>local-entries/NewFileInit</module>
+    <module>api/splitfileAPI</module>
+    <module>metadata/splitfileAPI_swagger</module>
+    <module>metadata/splitfileAPI_metadata</module>
+    <module>sequences/testSeq</module>
+    <module>local-entries/FIleDateCheckXSLT</module>
+  </modules>
+</project>

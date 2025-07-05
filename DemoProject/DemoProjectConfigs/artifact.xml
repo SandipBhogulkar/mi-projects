@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><artifacts>
+    <artifact name="DemoInboundEndpoint" groupId="com.example.inbound-endpoint" version="1.0.0" type="synapse/inbound-endpoint" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/inbound-endpoints/DemoInboundEndpoint.xml</file>
+    </artifact>
+    <artifact name="Sequence" groupId="com.example.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/Sequence.xml</file>
+    </artifact>
+    <artifact name="JMSInboundEndpoint" groupId="com.example.inbound-endpoint" version="1.0.0" type="synapse/inbound-endpoint" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/inbound-endpoints/JMSInboundEndpoint.xml</file>
+    </artifact>
+    <artifact name="DemoMessageStore" groupId="com.example.message-store" version="1.0.0" type="synapse/message-store" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/message-stores/DemoMessageStore.xml</file>
+    </artifact>
+    <artifact name="JMSToHttpDemoProxy" groupId="com.example.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/JMSToHttpDemoProxy.xml</file>
+    </artifact>
+    <artifact name="JMSToHttpDemoProxy_proxy_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/JMSToHttpDemoProxy_proxy_metadata.yaml</file>
+    </artifact>
+    <artifact name="JMSDemoAPI" groupId="com.example.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/api/JMSDemoAPI.xml</file>
+    </artifact>
+    <artifact name="JMSDemoAPI_swagger" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/JMSDemoAPI_swagger.yaml</file>
+    </artifact>
+    <artifact name="JMSDemoAPI_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/JMSDemoAPI_metadata.yaml</file>
+    </artifact>
+</artifacts>

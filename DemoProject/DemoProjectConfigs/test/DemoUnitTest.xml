@@ -1,0 +1,56 @@
+<unit-test>
+    <artifacts>
+        <test-artifact>
+            <artifact>/DemoProjectConfigs/src/main/synapse-config/proxy-services/JMSToHttpDemoProxy.xml</artifact>
+        </test-artifact>
+        <supportive-artifacts>
+            <artifact>/DemoProject/DemoProjectConfigs/src/main/synapse-config/sequences/Sequence.xml</artifact>
+        </supportive-artifacts>
+        <registry-resources/>
+        <connector-resources/>
+    </artifacts>
+    <test-cases>
+        <test-case name="DesmoTestCase">
+            <input>
+                <payload><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://services.samples" xmlns:xsd="http://services.samples/xsd">&#13;
+   <soapenv:Header/>&#13;
+   <soapenv:Body>&#13;
+      <ser:getQuote xmlns:ser="http://services.samples" xmlns:xsd="http://services.samples/xsd">&#13;
+         <!--Optional:-->&#13;
+         <ser:request>&#13;
+            <!--Optional:-->&#13;
+            <xsd:symbol>IBM</xsd:symbol>&#13;
+         </ser:request>&#13;
+      </ser:getQuote>&#13;
+   </soapenv:Body>&#13;
+</soapenv:Envelope>]]></payload>
+                <properties>
+                    <property name="content-type" scope="transport" value="text/xml"/>
+                </properties>
+            </input>
+            <assertions>
+                <assertEquals>
+                    <actual>$body</actual>
+                    <expected><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://services.samples" xmlns:xsd="http://services.samples/xsd">&#13;
+   <soapenv:Header/>&#13;
+   <soapenv:Body>&#13;
+      <ser:getQuote xmlns:ser="http://services.samples" xmlns:xsd="http://services.samples/xsd">&#13;
+         <!--Optional:-->&#13;
+         <ser:request>&#13;
+            <!--Optional:-->&#13;
+            <xsd:symbol>IBM</xsd:symbol>&#13;
+         </ser:request>&#13;
+      </ser:getQuote>&#13;
+   </soapenv:Body>&#13;
+</soapenv:Envelope>]]></expected>
+                    <message>Actual value is different</message>
+                </assertEquals>
+                <assertNotNull>
+                    <actual>$body</actual>
+                    <message>AssertNotNull</message>
+                </assertNotNull>
+            </assertions>
+        </test-case>
+    </test-cases>
+    <mock-services/>
+</unit-test>
