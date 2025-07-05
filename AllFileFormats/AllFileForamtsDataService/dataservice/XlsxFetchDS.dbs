@@ -1,0 +1,25 @@
+<data transports="http https local" serviceGroup="" serviceNamespace="" name="XlsxFetchDS" enableBatchRequests="true">
+  <description />
+  
+  <config id="TASCUA">
+    <property name="driverClassName">org.postgresql.Driver</property>
+    <property name="url">jdbc:postgresql://ua-product-dev-psqlcluster.cluster-cny68w2wk5k6.ap-southeast-1.rds.amazonaws.com:6426/TASCUA</property>
+    <property name="username">ua_product_dba_dev</property>
+    <property name="password">35*+{+vA'}kQ-yDC</property>
+  </config>
+ 
+  <query id="insertionXlsxData" useConfig="TASCUA">
+    <sql>INSERT INTO public."XlsxData_staging"(
+	"id", "first_name", "last_name")
+	VALUES ((SELECT COALESCE(MAX("id")+1,1) FROM "XlsxData_staging"), --id
+	:first_name, :last_name) --RETURNING "id";</sql>
+    <param type="IN" name="first_name" paramType="SCALAR" sqlType="STRING" optional="false" />
+    <param type="IN" name="last_name" paramType="SCALAR" sqlType="STRING" optional="false" />
+    
+  </query>
+  <operation name="insertionXlsxData">
+    <call-query href="insertionXlsxData">
+      <with-param name="first_name" query-param="first_name" />
+      <with-param name="last_name" query-param="last_name" />
+      </call-query></operation>
+</data>
