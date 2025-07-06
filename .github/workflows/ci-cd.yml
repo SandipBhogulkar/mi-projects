@@ -1,4 +1,4 @@
-name: Build and Deploy CARs (Windows + Docker Desktop)
+name: Build and Deploy CARs (Windows + Docker Desktop )
 
 on:
   push:
