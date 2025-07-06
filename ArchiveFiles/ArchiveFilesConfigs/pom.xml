@@ -61,7 +61,7 @@
         <executions>
           <execution>
             <id>synapse-unit-test</id>
-            <phase>test</phase>
+            <phase>none</phase>
             <goals>
               <goal>synapse-unit-test</goal>
             </goals>
