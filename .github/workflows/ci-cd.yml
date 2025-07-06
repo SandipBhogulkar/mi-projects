@@ -1,4 +1,4 @@
-name: Build and Deploy CARs to WSO2 MI
+name: Build and Deploy CARs (Local Volume Mount)
 
 on:
   push:
@@ -6,10 +6,10 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # You must run this on your own machine
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Java 11
@@ -22,17 +22,20 @@ jobs:
         run: |
           for dir in */; do
             if [ -f "$dir/pom.xml" ]; then
-              echo "🔧 Building: $dir"
+              echo "🔧 Building $dir"
               mvn -f "$dir/pom.xml" clean install -DskipTests --fail-never
             fi
           done
 
-      - name: Deploy CARs to WSO2 MI via SCP
-        uses: appleboy/scp-action@v0.1.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          source: "**/target/*.car"
-          target: "/your/mi/deployment/folder"
+      - name: Copy .car files to local MI carbonapps folder
+        run: |
+          DEPLOY_DIR="/d/Sandip/wso2mi-4.2.0/wso2mi-4.2.0/repository/deployment/server/carbonapps"
+          echo "Using deploy directory: $DEPLOY_DIR"
+
+          for car in $(find . -name "*.car"); do
+            echo "📦 Copying $car to $DEPLOY_DIR"
+            cp "$car" "$DEPLOY_DIR"
+          done
+
+      - name: ✅ Done
+        run: echo "CARs copied to WSO2 MI. It should auto-deploy shortly."
