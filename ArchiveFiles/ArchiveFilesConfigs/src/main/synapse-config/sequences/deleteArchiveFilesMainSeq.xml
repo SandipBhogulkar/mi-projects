@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="deleteArchiveFilesMainSeq" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <log level="custom">
+        <property name="DELETE ARCHIVED FILE SEQ CRON : " value="Delete Archived File Sequence Initiated"/>
+    </log>
+    <property expression="$url:uuid" name="UUID" scope="default" type="STRING"/>
+    <!-- property value="8acf1873-5a81-49d8-9840-102dbefba782" name="UUID" scope="default" type="STRING"/ -->
+    <log level="custom">
+        <property expression="$ctx:UUID" name="UUID"/>
+        <property name="DELETE ARCHIVED FILE CRON Job" value="execution Started"/>
+    </log>
+    <sequence key="getMetadataConfigSeq"/>
+    <sequence key="validateUUIDSeq"/>
+    <sequence key="getMetadataSeq"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/credentials/deleteArchivalNumberOfDays" name="daysToSubtract" scope="default" type="STRING"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/credentials/archivalPath" name="archivalPath" scope="default" type="STRING"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/credentials/path" name="outboundPath" scope="default" type="STRING"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/hostname" name="hostName" scope="default" type="STRING"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/username" name="userName" scope="default" type="STRING"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/password" name="password" scope="default" type="STRING"/>
+    <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/port" name="port" scope="default" type="STRING"/>
+    <log>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/credentials/deleteArchivalNumberOfDays" name="daysToSubtract"/>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/credentials/archivalPath" name="archivalPath"/>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/credentials/path" name="outboundPath"/>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/hostname" name="hostName"/>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/username" name="userName"/>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/password" name="password"/>
+        <property expression="//metaData/clientDetails/projectRepository/project/sourceSystem/sourceCredentials/credentials/port" name="port"/>
+    </log>
+    <sequence key="previousDateCalculateSeq"/>
+    <file.listFiles configKey="NewFileInit">
+        <directoryPath>{$ctx:archivalPath}</directoryPath>
+        <matchingPattern>.*\.csv</matchingPattern>
+        <recursive>false</recursive>
+        <responseFormat>Hierarchical</responseFormat>
+        <sortingAttribute>Name</sortingAttribute>
+        <sortingOrder>Ascending</sortingOrder>
+    </file.listFiles>
+    <log>
+        <property expression="json-eval($)" name="FileList"/>
+    </log>
+    <!-- <xslt key="FileDateCheckXSLT"><property expression="get-property('previousDate')" name="previousDate"/>
+    </xslt> -->
+    <foreach expression="//file" id="fileMove">
+        <sequence>
+            <property expression="//file" name="Filename" scope="default" type="STRING"/>
+            <script language="js"><![CDATA[var fileName = mc.getProperty("Filename"); 
+                var regex = /\d{8,}/; // Regex to match numeric sequences with at least 8 digits
+                var match = fileName.match(regex); // Find the first valid numeric sequence
+var isOlder = "false";
+                if (match) {
+                    var numericSequence = match[0]; 
+                    var first8Digits = numericSequence.substring(0, 8); // Take the first 8 digits
+
+                    // Validate if the extracted 8 characters are numeric
+                    if (/^\d{8}$/.test(first8Digits)) {
+                        mc.setProperty("fileDate", first8Digits); 
+
+                        
+                        var previousDate = mc.getProperty("previousDate");
+                       
+                            if (parseInt(first8Digits, 10) < parseInt(previousDate, 10)) {
+                              isOlder = "true";
+                            } else {
+                                isOlder = "false"; 
+                            }
+                       
+                    } else {
+                        mc.setProperty("fileDate", "INVALID_DATE"); 
+                    }
+                } else {
+                    mc.setProperty("fileDate", "NO_NUMERIC_SEQUENCE"); 
+                }
+mc.setProperty("isOlder", isOlder);]]></script>
+            <log level="custom">
+                <property expression="//file" name="Filename"/>
+                <property expression="get-property('fileDate')" name="fileDate"/>
+                <property expression="get-property('isOlder')" name="isOlder"/>
+            </log>
+            <filter regex="true" source="get-property('isOlder')">
+                <then>
+                    <log>
+                        <property name="FileStatus : " value="File is older than the given date. Proceeding with deletion."/>
+                        <property expression="concat(get-property('archivalPath'),'/',get-property('Filename'))" name="deletFilePath"/>
+                    </log>
+                    <property expression="concat(get-property('archivalPath'),'/',get-property('Filename'))" name="deletFilePath" scope="default" type="STRING"/>
+                    <file.delete configKey="NewFileInit">
+                        <path>{$ctx:deletFilePath}</path>
+                    </file.delete>
+                </then>
+                <else/>
+            </filter>
+        </sequence>
+    </foreach>
+</sequence>

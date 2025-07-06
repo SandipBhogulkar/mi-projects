@@ -1,0 +1,11 @@
+---
+key: "deleteApi-1.0.0"
+name : "deleteApi"
+displayName : "deleteApi"
+description: "Sample API"
+version: "1.0.0"
+serviceUrl: "https://{MI_HOST}:{MI_PORT}/delete"
+definitionType: "OAS3"
+securityType: "BASIC"
+mutualSSLEnabled: false
+apiId : "null"
