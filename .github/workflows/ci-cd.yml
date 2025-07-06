@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted  # You must have a self-hosted runner running on your machine
+    runs-on: self-hosted  # Your Windows self-hosted runner
 
     steps:
       - name: Checkout repository
@@ -18,24 +18,51 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: Build all CAR projects
+      - name: Build changed CAR projects (Windows cmd)
+        shell: cmd
         run: |
-          for /d %%D in (*) do (
-            if exist "%%D\pom.xml" (
-              echo Building %%D
-              call mvn -f "%%D\pom.xml" clean install -DskipTests --fail-never
+          REM Get changed directories between last two commits
+          for /f "tokens=*" %%a in ('git diff --name-only HEAD~1 HEAD ^| findstr /r /c:"\/"') do (
+            for /f "tokens=1 delims=/" %%b in ("%%a") do (
+              echo %%b >> changed_dirs.txt
             )
           )
-        shell: cmd
+          sort changed_dirs.txt /unique /o changed_dirs_unique.txt
+
+          setlocal enabledelayedexpansion
+          set changed=
+          for /f "tokens=*" %%d in (changed_dirs_unique.txt) do (
+            set changed=!changed! %%d
+          )
+
+          if "!changed!"=="" (
+            echo No changed directories detected or first push - building all projects
+            for /d %%p in (*) do (
+              if exist "%%p\pom.xml" (
+                echo 🔧 Building: %%p
+                mvn -f "%%p\pom.xml" clean install -DskipTests --fail-never
+              )
+            )
+          ) else (
+            echo Changed directories: !changed!
+            for %%c in (!changed!) do (
+              if exist "%%c\pom.xml" (
+                echo 🔧 Building changed project: %%c
+                mvn -f "%%c\pom.xml" clean install -DskipTests --fail-never
+              ) else (
+                echo No pom.xml in %%c, skipping
+              )
+            )
+          )
 
       - name: Copy .car files to WSO2 MI deployment folder
+        shell: cmd
         run: |
           set "CARBONAPPS_DIR=D:\Sandip\wso2mi-4.2.0\wso2mi-4.2.0\repository\deployment\server\carbonapps"
           for /r %%f in (*.car) do (
             echo Copying %%f to %CARBONAPPS_DIR%
             copy "%%f" "%CARBONAPPS_DIR%"
           )
-        shell: cmd
 
       - name: ✅ Done
         run: echo CAR deployment complete. WSO2 MI will auto-deploy them.
