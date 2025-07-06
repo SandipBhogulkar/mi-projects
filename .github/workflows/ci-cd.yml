@@ -1,4 +1,4 @@
-name: Build and Deploy CARs (Local Volume Mount)
+name: Build and Deploy CARs (Windows + Docker Desktop)
 
 on:
   push:
@@ -6,10 +6,10 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted  # You must run this on your own machine
+    runs-on: self-hosted  # You must have a self-hosted runner running on your machine
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Java 11
@@ -20,22 +20,22 @@ jobs:
 
       - name: Build all CAR projects
         run: |
-          for dir in */; do
-            if [ -f "$dir/pom.xml" ]; then
-              echo "🔧 Building $dir"
-              mvn -f "$dir/pom.xml" clean install -DskipTests --fail-never
-            fi
-          done
+          for /d %%D in (*) do (
+            if exist "%%D\pom.xml" (
+              echo Building %%D
+              call mvn -f "%%D\pom.xml" clean install -DskipTests --fail-never
+            )
+          )
+        shell: cmd
 
-      - name: Copy .car files to local MI carbonapps folder
+      - name: Copy .car files to WSO2 MI deployment folder
         run: |
-          DEPLOY_DIR="/d/Sandip/wso2mi-4.2.0/wso2mi-4.2.0/repository/deployment/server/carbonapps"
-          echo "Using deploy directory: $DEPLOY_DIR"
-
-          for car in $(find . -name "*.car"); do
-            echo "📦 Copying $car to $DEPLOY_DIR"
-            cp "$car" "$DEPLOY_DIR"
-          done
+          set "CARBONAPPS_DIR=D:\Sandip\wso2mi-4.2.0\wso2mi-4.2.0\repository\deployment\server\carbonapps"
+          for /r %%f in (*.car) do (
+            echo Copying %%f to %CARBONAPPS_DIR%
+            copy "%%f" "%CARBONAPPS_DIR%"
+          )
+        shell: cmd
 
       - name: ✅ Done
-        run: echo "CARs copied to WSO2 MI. It should auto-deploy shortly."
+        run: echo CAR deployment complete. WSO2 MI will auto-deploy them.
